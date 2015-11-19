@@ -1,5 +1,6 @@
 package com.thebitcorps.connect5;
 
+import android.graphics.Color;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -8,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.thebitcorps.connect5.listeners.ConnectPointListener;
 import com.thebitcorps.connect5.models.ConnectPoint;
@@ -18,16 +20,25 @@ public class MainActivity extends ActionBarActivity {
 	private static final int rows = 8;
 	private static final int columns = 10;
 	private Boolean is_first_player;
+	private TextView firstPlayerTextView;
+	private TextView secondPlayerTextView;
+	private static final int activePlayerColor = Color.BLUE;
+	private static final int inactivePlayerColor = Color.BLACK;
 	ConnectPoint[][] points = new ConnectPoint[rows][columns];
 
 	public void changePlayer(){
 		is_first_player = is_first_player ? false  : true;
+		firstPlayerTextView.setTextColor(is_first_player ? activePlayerColor : inactivePlayerColor);
+		secondPlayerTextView.setTextColor(is_first_player ? inactivePlayerColor : activePlayerColor);
 	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		firstPlayerTextView = (TextView) findViewById(R.id.first_player_text_view);
+		firstPlayerTextView.setTextColor(activePlayerColor);
+		secondPlayerTextView = (TextView) findViewById(R.id.second_player_text_view);
 		is_first_player = true;
 		for (int x = 0;x < rows;x++){
 			for (int y = 0;y < columns;y++) {
@@ -41,8 +52,11 @@ public class MainActivity extends ActionBarActivity {
 					@Override
 					public void onClick(View v) {
 						super.onClick(v);
-						connectPoint.setPlayerSelection(is_first_player ? ConnectPoint.PLAYER_ONE_VALUE : ConnectPoint.PLAYER_TWO_VALUE);
-						changePlayer();
+						if (!connectPoint.is_selected()){
+							connectPoint.setPlayerSelection(is_first_player ? ConnectPoint.PLAYER_ONE_VALUE : ConnectPoint.PLAYER_TWO_VALUE);
+							changePlayer();
+						}
+
 					}
 				});
 			}

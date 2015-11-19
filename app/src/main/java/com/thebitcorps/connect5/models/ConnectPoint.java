@@ -18,9 +18,14 @@ public class ConnectPoint {
 		return playerSelection;
 	}
 
+
+	public boolean is_selected(){
+		return this.getPlayerSelection() != UNSELECTED_VALUE;
+	}
+
 	public void setPlayerSelection(int playerSelection) {
 		//Raise custom exception for display error and prevent user turn change
-		if( this.getPlayerSelection() != UNSELECTED_VALUE) return;
+
 		this.playerSelection = playerSelection;
 		this.button.setText(Integer.toString(this.getPlayerSelection()));
 	}
