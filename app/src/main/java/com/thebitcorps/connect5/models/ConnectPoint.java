@@ -10,6 +10,16 @@ import java.util.ArrayList;
  */
 public class ConnectPoint {
 	private Button button;
+	private int x,y;
+	private int playerSelection;
+
+	public ConnectPoint(Button button, int x, int y) {
+		this.playerSelection = 0;
+		this.button = button;
+		this.x = x;
+		this.y = y;
+	}
+
 	public static final int PLAYER_ONE_VALUE = 1;
 	public static final int PLAYER_TWO_VALUE = 2;
 	public static final int UNSELECTED_VALUE = 0;
@@ -30,9 +40,14 @@ public class ConnectPoint {
 		this.button.setText(Integer.toString(this.getPlayerSelection()));
 	}
 
-	private int playerSelection;
 
-	private ArrayList<Point> neighbors;
+	public int getX() {
+		return x;
+	}
+
+	public int getY() {
+		return y;
+	}
 
 	public Button getButton() {
 		return button;
@@ -41,15 +56,4 @@ public class ConnectPoint {
 	public void setButton(Button button) {
 		this.button = button;
 	}
-
-	public ConnectPoint(Button button) {
-		this.playerSelection = 0;
-		this.neighbors = new ArrayList<Point>();
-		this.button = button;
-	}
-
-	public ArrayList<Point> getNeighbors() {
-		return neighbors;
-	}
-
 }
