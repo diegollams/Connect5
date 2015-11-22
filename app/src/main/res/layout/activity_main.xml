@@ -17,14 +17,16 @@
             android:layout_height="match_parent"
             android:text="Player 1"
             android:id="@+id/first_player_text_view"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            style="@style/PlayerTextView"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:text="Player 2"
             android:id="@+id/second_player_text_view"
-            android:layout_weight="1"/>
+            android:layout_weight="1"
+            style="@style/PlayerTextView"/>
     </LinearLayout>
 
     <LinearLayout

@@ -1,11 +1,14 @@
 package com.thebitcorps.connect5;
 
 
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.support.v7.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Color;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,7 +21,7 @@ import com.thebitcorps.connect5.listeners.ConnectPointListener;
 import com.thebitcorps.connect5.models.ConnectPoint;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity {
 	private static final String TAG = "shit";
 	private static final int[] layout_ids = {R.id.first_row,R.id.second_row,R.id.third_row,R.id.fourth_row,R.id.fifth_row,R.id.sixth_row,R.id.seventh_row,R.id.eighth_row};
 	private static final int ROWS = 8;
@@ -26,16 +29,22 @@ public class MainActivity extends ActionBarActivity {
 	private Boolean is_first_player;
 	private TextView firstPlayerTextView;
 	private TextView secondPlayerTextView;
-	private static final int ACTIVE_PLAYER_COLOR = Color.BLUE;
-	private static final int INACTIVE_PLAYER_COLOR = Color.BLACK;
+	/////Preferences keys
+	private static final String FIRST_PLAYER_SCORE = "firstPlayer";
+	private static final String SECOND_PLAYER_SCORE = "secondPlayer";
+	////COLORS
+	private  final int FIRST_PLAYER_COLOR = Color.parseColor("#ffffff");
+	private final int SECOND_PLAYER_COLOR = Color.parseColor("#ffffff");
+	private static final int INACTIVE_PLAYER_COLOR = Color.parseColor("#FFCC00");
+
 	private static final int  WIN_NUMBER_CONNECTED = 5;
 	ConnectPoint[][] points = new ConnectPoint[ROWS][COLUMNS];
 
 
 	private void changePlayer(){
+		firstPlayerTextView.setTextColor(is_first_player ? FIRST_PLAYER_COLOR : INACTIVE_PLAYER_COLOR);
+		secondPlayerTextView.setTextColor(is_first_player ? INACTIVE_PLAYER_COLOR : SECOND_PLAYER_COLOR);
 		is_first_player = is_first_player ? false  : true;
-		firstPlayerTextView.setTextColor(is_first_player ? ACTIVE_PLAYER_COLOR : INACTIVE_PLAYER_COLOR);
-		secondPlayerTextView.setTextColor(is_first_player ? INACTIVE_PLAYER_COLOR : ACTIVE_PLAYER_COLOR);
 	}
 
 	public boolean checkPointsForWin(int playerPoint,int x,int y){
@@ -48,7 +57,19 @@ public class MainActivity extends ActionBarActivity {
 		else if(checkPointsForWinRecursive(playerPoint,x,y,  0 ,1,1)){
 			return true;
 		}
-		if(checkPointsForWinRecursive(playerPoint,x,y,  0 ,-1,1)){
+		else if(checkPointsForWinRecursive(playerPoint,x,y,  0 ,-1,1)){
+			return true;
+		}
+		else if(checkPointsForWinRecursive(playerPoint,x,y,  1 ,1,1)){
+			return true;
+		}
+		else if(checkPointsForWinRecursive(playerPoint,x,y,  -1 ,-1,1)){
+			return true;
+		}
+		else if(checkPointsForWinRecursive(playerPoint,x,y,  -1 ,1,1)){
+			return true;
+		}
+		else if(checkPointsForWinRecursive(playerPoint,x,y,  1 ,-1,1)){
 			return true;
 		}
 //		add diagonal  checks
@@ -77,8 +98,8 @@ public class MainActivity extends ActionBarActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		firstPlayerTextView = (TextView) findViewById(R.id.first_player_text_view);
-		firstPlayerTextView.setTextColor(ACTIVE_PLAYER_COLOR);
 		secondPlayerTextView = (TextView) findViewById(R.id.second_player_text_view);
+		secondPlayerTextView.setTextColor(FIRST_PLAYER_COLOR);
 		is_first_player = true;
 		for (int x = 0;x < ROWS;x++){
 			for (int y = 0;y < COLUMNS;y++) {
@@ -86,7 +107,8 @@ public class MainActivity extends ActionBarActivity {
 				LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT,1);
 				layoutParams.setMargins(0, 0, 0, 0);
 				button.setLayoutParams(layoutParams);
-				button.setPadding(0, 0, 0, 0);
+				button.setPadding(0,0,0,0);
+				button.setBackgroundResource(R.drawable.button_background_default);
 				points[x][y] = new ConnectPoint(button,x,y);
 				points[x][y].getButton().setOnClickListener(new ConnectPointListener(is_first_player,points[x][y]){
 					@Override
@@ -94,15 +116,33 @@ public class MainActivity extends ActionBarActivity {
 						super.onClick(v);
 						if (!connectPoint.is_selected()){
 							connectPoint.setPlayerSelection(is_first_player ? ConnectPoint.PLAYER_ONE_VALUE : ConnectPoint.PLAYER_TWO_VALUE);
-							if(checkPointsForWin(connectPoint.getPlayerSelection(),connectPoint.getX(),connectPoint.getY())){
-
+							if(checkPointsForWin(connectPoint.getPlayerSelection(),connectPoint.getX(),connectPoint.getY())) {
+								SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
+								SharedPreferences.Editor editor = settings.edit();
+								if(is_first_player){
+									editor.putInt(FIRST_PLAYER_SCORE,settings.getInt(FIRST_PLAYER_SCORE, 0) + 1);
+								}
+								else{
+									editor.putInt(SECOND_PLAYER_SCORE,settings.getInt(SECOND_PLAYER_SCORE, 0) + 1);
+								}
+								editor.commit();
+								String scoreFirstPLayer = Integer.toString(settings.getInt(FIRST_PLAYER_SCORE, 0));
+								String scoreSecondPLayer = Integer.toString(settings.getInt(SECOND_PLAYER_SCORE, 0));
 								AlertDialog.Builder builder = new AlertDialog.Builder(v.getContext(), R.style.AppCompatAlertDialogStyle);
-								builder.setTitle("Gano");
-								builder.setMessage("Lorem ipsum dolor ....");
-								builder.setPositiveButton("OK", null);
+								builder.setTitle("Gano" + (is_first_player ? "Jugador 1" : " Jugador 2"));
+								builder.setMessage("Jugador 1: " + scoreFirstPLayer + "\nJugador 2: " + scoreSecondPLayer);
+								builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+										restartGame();
+									}
+								});
 								builder.show();
+
 							}
-							changePlayer();
+							else {
+								changePlayer();
+							}
 						}
 
 					}
@@ -134,11 +174,22 @@ public class MainActivity extends ActionBarActivity {
 
 		//noinspection SimplifiableIfStatement
 		if (id == R.id.restart_game) {
-			finish();
-			startActivity(new Intent(getApplicationContext(),MainActivity.class));
+			restartGame();
+			return true;
+		}
+		else if (id == R.id.restore_score){
+			SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
+			SharedPreferences.Editor editor = settings.edit();
+			editor.clear();
+			editor.commit();
 			return true;
 		}
 
 		return super.onOptionsItemSelected(item);
+	}
+
+	private void restartGame() {
+		finish();
+		startActivity(new Intent(getApplicationContext(),MainActivity.class));
 	}
 }

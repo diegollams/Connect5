@@ -6,4 +6,8 @@
           android:title="@string/restart_game"
           android:orderInCategory="100"
           app:showAsAction="never"/>
+     <item android:id="@+id/restore_score"
+          android:title="@string/restart_game"
+          android:orderInCategory="100"
+          app:showAsAction="never"/>
 </menu>

@@ -9,5 +9,19 @@
         <item name="android:textColorPrimary">#FFFFFF</item>
         <item name="android:background">#5fa3d0</item>
     </style>
+    <style name="PlayerTextView" parent="@android:style/TextAppearance">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/accent_color</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:background">@color/button_gray</item>
+    </style>
+    <color name="accent_color">#FFCC00</color>
+    <color name="button_gray">#9E9E9E</color>
+    <color name="first_player_color">#F44336</color>
+    <color name="second_player_color">#3F51B5</color>
+
+
+
 
 </resources>

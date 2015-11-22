@@ -3,4 +3,5 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="restart_game">Restart game</string>
+    <string name="restart_score">Restart scores</string>
 </resources>

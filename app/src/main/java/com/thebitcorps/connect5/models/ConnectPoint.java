@@ -3,6 +3,8 @@ package com.thebitcorps.connect5.models;
 import android.util.Pair;
 import android.widget.Button;
 
+import com.thebitcorps.connect5.R;
+
 import java.util.ArrayList;
 
 /**
@@ -35,9 +37,9 @@ public class ConnectPoint {
 
 	public void setPlayerSelection(int playerSelection) {
 		//Raise custom exception for display error and prevent user turn change
-
 		this.playerSelection = playerSelection;
-		this.button.setText(Integer.toString(this.getPlayerSelection()));
+//		this.button.setText(Integer.toString(this.getPlayerSelection()));
+		this.button.setBackgroundResource(playerSelection == PLAYER_ONE_VALUE ? R.color.first_player_color : R.color.second_player_color);
 	}
 
 
