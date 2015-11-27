@@ -18,14 +18,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.thebitcorps.connect5.listeners.ConnectPointListener;
+import com.thebitcorps.connect5.models.ConnectBoard;
 import com.thebitcorps.connect5.models.ConnectPoint;
 
 
 public class MainActivity extends AppCompatActivity {
 	private static final String TAG = "shit";
 	private static final int[] layout_ids = {R.id.first_row,R.id.second_row,R.id.third_row,R.id.fourth_row,R.id.fifth_row,R.id.sixth_row,R.id.seventh_row,R.id.eighth_row};
-	private static final int ROWS = 8;
-	private static final int COLUMNS = 10;
 	private Boolean is_first_player;
 	private TextView firstPlayerTextView;
 	private TextView secondPlayerTextView;
@@ -36,94 +35,47 @@ public class MainActivity extends AppCompatActivity {
 	private  final int FIRST_PLAYER_COLOR = Color.parseColor("#ffffff");
 	private final int SECOND_PLAYER_COLOR = Color.parseColor("#ffffff");
 	private static final int INACTIVE_PLAYER_COLOR = Color.parseColor("#FFCC00");
+	private ConnectBoard board;
 
-	private static final int  WIN_NUMBER_CONNECTED = 5;
-	ConnectPoint[][] points = new ConnectPoint[ROWS][COLUMNS];
-
+	private Boolean cpuPlaying;
 
 	private void changePlayer(){
 		firstPlayerTextView.setTextColor(is_first_player ? FIRST_PLAYER_COLOR : INACTIVE_PLAYER_COLOR);
 		secondPlayerTextView.setTextColor(is_first_player ? INACTIVE_PLAYER_COLOR : SECOND_PLAYER_COLOR);
 		is_first_player = is_first_player ? false  : true;
+		if((!is_first_player) && cpuPlaying )
+		{
+			
+		}
 	}
 
-	public boolean checkPointsForWin(int playerPoint,int x,int y){
-		if(checkPointsForWinRecursive(playerPoint,x,y,  1 ,0,1)){
-			return true;
-		}
-		else if(checkPointsForWinRecursive(playerPoint,x,y,  -1 ,0,1)){
-			return true;
-		}
-		else if(checkPointsForWinRecursive(playerPoint,x,y,  0 ,1,1)){
-			return true;
-		}
-		else if(checkPointsForWinRecursive(playerPoint,x,y,  0 ,-1,1)){
-			return true;
-		}
-		else if(checkPointsForWinRecursive(playerPoint,x,y,  1 ,1,1)){
-			return true;
-		}
-		else if(checkPointsForWinRecursive(playerPoint,x,y,  -1 ,-1,1)){
-			return true;
-		}
-		else if(checkPointsForWinRecursive(playerPoint,x,y,  -1 ,1,1)){
-			return true;
-		}
-		else if(checkPointsForWinRecursive(playerPoint,x,y,  1 ,-1,1)){
-			return true;
-		}
-//		add diagonal  checks
-		return false;
-	}
 
-	private boolean checkPointsForWinRecursive(int playerPoint,int x,int y,int adderX,int adderY,int connectedPoints){
-		final int newX = x + adderX;
-		final int newY = y + adderY;
-		if(newX >= ROWS ||newX < 0 || newY>= COLUMNS ||newY < 0){
-			return false;
-		}
-		else if(points[x][y].getPlayerSelection() != points[newX][newY].getPlayerSelection()){
-			return false;
-		}
-		else if(connectedPoints + 1 == WIN_NUMBER_CONNECTED){
-			return true;
-		}
-		else{
-			return checkPointsForWinRecursive(playerPoint,newX,newY,adderX,adderY,connectedPoints +1);
-		}
-	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		cpuPlaying = true;
 		firstPlayerTextView = (TextView) findViewById(R.id.first_player_text_view);
 		secondPlayerTextView = (TextView) findViewById(R.id.second_player_text_view);
 		secondPlayerTextView.setTextColor(FIRST_PLAYER_COLOR);
 		is_first_player = true;
-		for (int x = 0;x < ROWS;x++){
-			for (int y = 0;y < COLUMNS;y++) {
-				Button button = new Button(this);
-				LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT,1);
-				layoutParams.setMargins(0, 0, 0, 0);
-				button.setLayoutParams(layoutParams);
-				button.setPadding(0,0,0,0);
-				button.setBackgroundResource(R.drawable.button_background_default);
-				points[x][y] = new ConnectPoint(button,x,y);
-				points[x][y].getButton().setOnClickListener(new ConnectPointListener(is_first_player,points[x][y]){
+		board = new ConnectBoard(this);
+		for (int x = 0;x < ConnectBoard.ROWS;x++){
+			for (int y = 0;y < ConnectBoard.COLUMNS;y++) {
+				board.getButton(x,y).setOnClickListener(new ConnectPointListener(is_first_player, board.getPoint(x, y)) {
 					@Override
 					public void onClick(View v) {
 						super.onClick(v);
-						if (!connectPoint.is_selected()){
+						if (!connectPoint.is_selected()) {
 							connectPoint.setPlayerSelection(is_first_player ? ConnectPoint.PLAYER_ONE_VALUE : ConnectPoint.PLAYER_TWO_VALUE);
-							if(checkPointsForWin(connectPoint.getPlayerSelection(),connectPoint.getX(),connectPoint.getY())) {
+							if (board.checkPointsForWin(connectPoint.getPlayerSelection(), connectPoint.getX(), connectPoint.getY())) {
 								SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
 								SharedPreferences.Editor editor = settings.edit();
-								if(is_first_player){
-									editor.putInt(FIRST_PLAYER_SCORE,settings.getInt(FIRST_PLAYER_SCORE, 0) + 1);
-								}
-								else{
-									editor.putInt(SECOND_PLAYER_SCORE,settings.getInt(SECOND_PLAYER_SCORE, 0) + 1);
+								if (is_first_player) {
+									editor.putInt(FIRST_PLAYER_SCORE, settings.getInt(FIRST_PLAYER_SCORE, 0) + 1);
+								} else {
+									editor.putInt(SECOND_PLAYER_SCORE, settings.getInt(SECOND_PLAYER_SCORE, 0) + 1);
 								}
 								editor.commit();
 								String scoreFirstPLayer = Integer.toString(settings.getInt(FIRST_PLAYER_SCORE, 0));
@@ -139,8 +91,7 @@ public class MainActivity extends AppCompatActivity {
 								});
 								builder.show();
 
-							}
-							else {
+							} else {
 								changePlayer();
 							}
 						}
@@ -149,10 +100,10 @@ public class MainActivity extends AppCompatActivity {
 				});
 			}
 		}
-		for (int x = 0;x < ROWS;x++) {
+		for (int x = 0;x < ConnectBoard.ROWS;x++) {
 			LinearLayout linearLayout = (LinearLayout) findViewById(layout_ids[x]);
-			for (int y = 0; y < COLUMNS; y++) {
-				linearLayout.addView(points[x][y].getButton());
+			for (int y = 0; y < ConnectBoard.COLUMNS; y++) {
+				linearLayout.addView(board.getButton(x, y));
 			}
 		}
 
