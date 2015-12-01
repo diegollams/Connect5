@@ -5,6 +5,7 @@ package com.thebitcorps.connect5.models;
  */
 public class Point {
 	private int x,y;
+	private int fitness;
 
 
 	public Point() {
@@ -13,6 +14,7 @@ public class Point {
 	public Point(int x, int y) {
 		this.x = x;
 		this.y = y;
+		this.fitness = 0;
 	}
 
 	@Override
@@ -49,4 +51,12 @@ public class Point {
 	public void setY(int y) {
 		this.y = y;
 	}
+	public int getFitness() {
+		return fitness;
+	}
+
+	public void setFitness(int fitness) {
+		this.fitness = fitness;
+	}
+
 }

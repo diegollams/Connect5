@@ -1,7 +1,6 @@
 package com.thebitcorps.connect5;
 
 
-import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -13,8 +12,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -46,12 +43,11 @@ public class MainActivity extends AppCompatActivity {
 		firstPlayerTextView.setTextColor(is_first_player ? FIRST_PLAYER_COLOR : INACTIVE_PLAYER_COLOR);
 		secondPlayerTextView.setTextColor(is_first_player ? INACTIVE_PLAYER_COLOR : SECOND_PLAYER_COLOR);
 		is_first_player = is_first_player ? false  : true;
-//		if((!is_first_player) && cpuPlaying ) {
+		if((!is_first_player) && cpuPlaying ) {
 //			Point point = board.generateMinMaxPLay(ConnectPoint.PLAYER_TWO_VALUE);
-//			board.getButton(point.getX(),point.getY()).performClick();
-////			is_first_player = true;
-////			return;
-//		}
+			Point point = board.generatePointGenetic();
+			board.getButton(point.getX(),point.getY()).performClick();
+		}
 	}
 
 
@@ -72,7 +68,11 @@ public class MainActivity extends AppCompatActivity {
 					@Override
 					public void onClick(View v) {
 						super.onClick(v);
-						if (!connectPoint.is_selected()) {
+						if(board.isPointSelectable(connectPoint.getX(),connectPoint.getY())){
+							if(board.isFull()){
+								restartGame();
+								return;
+							}
 							connectPoint.setPlayerSelection(is_first_player ? ConnectPoint.PLAYER_ONE_VALUE : ConnectPoint.PLAYER_TWO_VALUE);
 							if (board.checkPointsForWin(connectPoint.getPlayerSelection(), connectPoint.getX(), connectPoint.getY())) {
 								SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);

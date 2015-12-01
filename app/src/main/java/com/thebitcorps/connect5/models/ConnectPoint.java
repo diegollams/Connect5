@@ -13,7 +13,11 @@ import java.util.ArrayList;
 public class ConnectPoint {
 	private Button button;
 	private int x,y;
+	private int fitness;
 	private int playerSelection;
+
+
+
 
 	public ConnectPoint(Button button, int x, int y) {
 		this.playerSelection = 0;
@@ -31,7 +35,7 @@ public class ConnectPoint {
 	}
 
 
-	public boolean is_selected(){
+	public boolean isSelected(){
 		return this.getPlayerSelection() != UNSELECTED_VALUE;
 	}
 
@@ -63,4 +67,19 @@ public class ConnectPoint {
 	public void setButton(Button button) {
 		this.button = button;
 	}
+	public int getFitness() {
+		return fitness;
+	}
+
+	public void setFitness(int fitness) {
+		this.fitness = fitness;
+	}
+
+//	public int getPoint() {
+//		return point;
+//	}
+//
+//	public void setPoint(int point) {
+//		this.point = point;
+//	}
 }
