@@ -1,6 +1,7 @@
 package com.thebitcorps.connect5;
 
 
+import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -20,6 +21,7 @@ import android.widget.TextView;
 import com.thebitcorps.connect5.listeners.ConnectPointListener;
 import com.thebitcorps.connect5.models.ConnectBoard;
 import com.thebitcorps.connect5.models.ConnectPoint;
+import com.thebitcorps.connect5.models.Point;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -40,13 +42,16 @@ public class MainActivity extends AppCompatActivity {
 	private Boolean cpuPlaying;
 
 	private void changePlayer(){
+
 		firstPlayerTextView.setTextColor(is_first_player ? FIRST_PLAYER_COLOR : INACTIVE_PLAYER_COLOR);
 		secondPlayerTextView.setTextColor(is_first_player ? INACTIVE_PLAYER_COLOR : SECOND_PLAYER_COLOR);
 		is_first_player = is_first_player ? false  : true;
-		if((!is_first_player) && cpuPlaying )
-		{
-			
-		}
+//		if((!is_first_player) && cpuPlaying ) {
+//			Point point = board.generateMinMaxPLay(ConnectPoint.PLAYER_TWO_VALUE);
+//			board.getButton(point.getX(),point.getY()).performClick();
+////			is_first_player = true;
+////			return;
+//		}
 	}
 
 
@@ -55,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		cpuPlaying = true;
+		cpuPlaying = true	;
 		firstPlayerTextView = (TextView) findViewById(R.id.first_player_text_view);
 		secondPlayerTextView = (TextView) findViewById(R.id.second_player_text_view);
 		secondPlayerTextView.setTextColor(FIRST_PLAYER_COLOR);
@@ -86,6 +91,11 @@ public class MainActivity extends AppCompatActivity {
 								builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 									@Override
 									public void onClick(DialogInterface dialog, int which) {
+									}
+								});
+								builder.setOnDismissListener(new DialogInterface.OnDismissListener(){
+									@Override
+									public void onDismiss(DialogInterface dialog) {
 										restartGame();
 									}
 								});
@@ -95,7 +105,6 @@ public class MainActivity extends AppCompatActivity {
 								changePlayer();
 							}
 						}
-
 					}
 				});
 			}

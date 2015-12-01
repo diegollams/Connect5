@@ -11,8 +11,8 @@ import com.thebitcorps.connect5.R;
  * Created by diegollams on 11/27/15.
  */
 public class ConnectBoard {
-	public static final int ROWS = 8;
-	public static final int COLUMNS = 10;
+	public static final int ROWS = 7;
+	public static final int COLUMNS = 9;
 	private static final int  WIN_NUMBER_CONNECTED = 5;
 	ConnectPoint[][] points = new ConnectPoint[ROWS][COLUMNS];
 
@@ -84,5 +84,78 @@ public class ConnectBoard {
 		else{
 			return checkPointsForWinRecursive(playerPoint,newX,newY,adderX,adderY,connectedPoints +1);
 		}
+	}
+	public boolean isFull(){
+		for (int x = 0; x <ROWS ; x++) {
+			for (int y = 0; y < COLUMNS; y++) {
+				if(!getPoint(x,y).is_selected()) return false;
+			}
+		}
+		return true;
+	}
+
+	private int min(int player,int xPos , int yPos){
+		if(checkPointsForWin(ConnectPoint.PLAYER_TWO_VALUE,xPos,yPos)){return  1;}
+		if(isFull()){return 0;}
+		int auxiliar,better = 9999;
+		for (int x = 0; x < ROWS; x++) {
+			for (int y = 0; y < COLUMNS; y++) {
+				if(!getPoint(x,y).is_selected()){
+					getPoint(x,y).setPlayerSelection(ConnectPoint.PLAYER_ONE_VALUE);
+					auxiliar = max(player,x,y);
+					if(auxiliar < better){
+						better = auxiliar;
+//						getPoint(x,y).setPlayerSelection(ConnectPoint.UNSELECTED_VALUE);
+//						return auxiliar;
+
+					}
+					getPoint(x,y).setPlayerSelection(ConnectPoint.UNSELECTED_VALUE);
+				}
+			}
+		}
+		return better ;
+	}
+
+
+	private int max(int player,int xPos , int yPos){
+		if(checkPointsForWin(ConnectPoint.PLAYER_ONE_VALUE,xPos,yPos)){return  -1;}
+		if(isFull()){return 0;}
+		int auxiliar,better = -9999;
+		for (int x = 0; x < ROWS; x++) {
+			for (int y = 0; y < COLUMNS; y++) {
+				if(!getPoint(x,y).is_selected()){
+					getPoint(x,y).setPlayerSelection(ConnectPoint.PLAYER_TWO_VALUE);
+					auxiliar = min(player, x, y);
+					if(auxiliar > better){
+						better = auxiliar;
+//						getPoint(x,y).setPlayerSelection(ConnectPoint.UNSELECTED_VALUE);
+//						return auxiliar;
+					}
+					getPoint(x,y).setPlayerSelection(ConnectPoint.UNSELECTED_VALUE);
+
+				}
+			}
+		}
+		return better;
+	}
+
+	@Deprecated
+	public Point generateMinMaxPLay(int player){
+		Point point =null;
+		int auxiliar,better = -9999;
+		for (int x = 0; x < ROWS; x++) {
+			for (int y = 0; y < COLUMNS; y++) {
+				if(!getPoint(x,y).is_selected()){
+					getPoint(x,y).setPlayerSelection(ConnectPoint.PLAYER_TWO_VALUE);
+					auxiliar = min(player,x,y);
+					if(auxiliar > better){
+						better = auxiliar;
+						point = new Point(x,y);
+					}
+					getPoint(x,y).setPlayerSelection(ConnectPoint.UNSELECTED_VALUE);
+				}
+			}
+		}
+		return  point;
 	}
 }

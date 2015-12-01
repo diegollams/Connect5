@@ -36,6 +36,11 @@ public class ConnectPoint {
 	}
 
 	public void setPlayerSelection(int playerSelection) {
+		if(playerSelection == UNSELECTED_VALUE){
+			this.playerSelection = playerSelection;
+			this.button.setBackgroundResource( R.drawable.button_background_default);
+			return;
+		}
 		//Raise custom exception for display error and prevent user turn change
 		this.playerSelection = playerSelection;
 //		this.button.setText(Integer.toString(this.getPlayerSelection()));
