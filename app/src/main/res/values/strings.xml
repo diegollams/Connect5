@@ -4,4 +4,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="restart_game">Restart game</string>
     <string name="restart_score">Restart scores</string>
+    <string name="cpu_mode">CPU mode</string>
+    <string name="two_players_mode">Two players mode</string>
 </resources>

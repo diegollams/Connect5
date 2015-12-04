@@ -1,10 +1,7 @@
 package com.thebitcorps.connect5.listeners;
 
-import android.content.Context;
-import android.content.DialogInterface;
 import android.view.View;
 
-import com.thebitcorps.connect5.MainActivity;
 import com.thebitcorps.connect5.models.ConnectPoint;
 
 /**

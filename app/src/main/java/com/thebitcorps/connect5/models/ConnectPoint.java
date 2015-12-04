@@ -1,11 +1,8 @@
 package com.thebitcorps.connect5.models;
 
-import android.util.Pair;
 import android.widget.Button;
 
 import com.thebitcorps.connect5.R;
-
-import java.util.ArrayList;
 
 /**
  * Created by diegollams on 11/19/15.

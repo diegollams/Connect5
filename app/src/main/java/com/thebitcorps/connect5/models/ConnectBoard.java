@@ -1,7 +1,6 @@
 package com.thebitcorps.connect5.models;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -9,9 +8,7 @@ import android.widget.LinearLayout;
 
 import com.thebitcorps.connect5.R;
 
-import java.util.Locale;
 import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Created by diegollams on 11/27/15.
@@ -19,12 +16,13 @@ import java.util.concurrent.ThreadLocalRandom;
 public class ConnectBoard {
 	private static final String TAG = "shit";
 	public static final int COLUMNS = 7;
+	//WARNING only 8 columns supported now
 	public static final int ROWS = 8;
-	private static final int FITNESS_MEDIA = 12;
+	private static final int FITNESS_MEDIA = 8;
 	private static final int NUMBER_OF_GENERATIONS = 1000;
 	private static final int  WIN_NUMBER_CONNECTED = 5;
 	private static final float MUTATE_RANDOM_CONSTANT = 0.8f;
-	private static final int NUMER_RANDOM_ELEMENTS = 5;
+	private static final int NUMER_RANDOM_ELEMENTS = 8;
 	ConnectPoint[][] points = new ConnectPoint[ROWS][COLUMNS];
 
 	public ConnectBoard(Context context) {
@@ -80,20 +78,20 @@ public class ConnectBoard {
 		return false;
 	}
 
-	public int checkCountForFitness(int x,int y){
+	public int checkCountForFitness(int player,int x,int y){
 		int fitness = 0;
-		fitness += checkCountForFitnessRecursive(x,y,1,0,0);
-		fitness += checkCountForFitnessRecursive(x,y,-1,0,0);
-		fitness += checkCountForFitnessRecursive(x,y,0,1,0);
-		fitness += checkCountForFitnessRecursive(x,y,0,-1,0);
-		fitness += checkCountForFitnessRecursive(x,y,1,1,0);
-		fitness += checkCountForFitnessRecursive(x,y,-1,-1,0);
-		fitness += checkCountForFitnessRecursive(x,y,-1,1,0);
-		fitness += checkCountForFitnessRecursive(x,y,1,-1,0);
+		fitness += checkCountForFitnessRecursive(player,x,y,1,0,0);
+		fitness += checkCountForFitnessRecursive(player,x,y,-1,0,0);
+		fitness += checkCountForFitnessRecursive(player,x,y,0,1,0);
+		fitness += checkCountForFitnessRecursive(player,x,y,0,-1,0);
+		fitness += checkCountForFitnessRecursive(player,x,y,1,1,0);
+		fitness += checkCountForFitnessRecursive(player,x,y,-1,-1,0);
+		fitness += checkCountForFitnessRecursive(player,x,y,-1,1,0);
+		fitness += checkCountForFitnessRecursive(player,x,y,1,-1,0);
 		return fitness;
 	}
 
-	private int checkCountForFitnessRecursive(int x,int y,int adderX,int adderY,int connectedPoints){
+	private int checkCountForFitnessRecursive(int player,int x,int y,int adderX,int adderY,int connectedPoints){
 		final int newX = x + adderX;
 		final int newY = y + adderY;
 		if(newX >= ROWS ||newX < 0 || newY>= COLUMNS ||newY < 0){
@@ -103,7 +101,10 @@ public class ConnectBoard {
 			return connectedPoints;
 		}
 		else{
-			return checkCountForFitnessRecursive(newX, newY, adderX, adderY, connectedPoints +1);
+			if(player == getPoint(newX,newY).getPlayerSelection())
+				return checkCountForFitnessRecursive(player,newX, newY, adderX, adderY, connectedPoints +1);
+			else
+				return checkCountForFitnessRecursive(player,newX, newY, adderX, adderY, connectedPoints +2);
 		}
 	}
 
@@ -146,15 +147,15 @@ public class ConnectBoard {
 	public Point generatePointGenetic(){
 		Point firstPoint = getPoints();
 		Point secondPoint = getPoints();
+//		Log.e(TAG,firstPoint.getX() +" "+ secondPoint.getX() +" "+firstPoint.getFitness());
 		Random mutateRandom = new Random();
 		for (int i = 0; i < NUMBER_OF_GENERATIONS; i++) {
 			firstPoint = getPoints(firstPoint);
-			Log.e(TAG,firstPoint.getX() +" "+ secondPoint.getX() +" "+firstPoint.getFitness());
 			secondPoint = getPoints(secondPoint);
 			if(isPointSelectable(firstPoint.getX(),secondPoint.getY()) && isPointSelectable(secondPoint.getX(),secondPoint.getY())) {
 				if(mutateRandom.nextFloat() > MUTATE_RANDOM_CONSTANT){
-//					firstPoint = new Point(firstPoint.getX(), secondPoint.getY());
-//					secondPoint = new Point(secondPoint.getX(), firstPoint.getY());
+					firstPoint = new Point(firstPoint.getX(), secondPoint.getY());
+					secondPoint = new Point(secondPoint.getX(), firstPoint.getY());
 					Log.v(TAG,"MUTATE");
 				}
 			}
@@ -173,8 +174,9 @@ public class ConnectBoard {
 		Point[] newPoints = new Point[NUMER_RANDOM_ELEMENTS];
 		for (int i = 0; i < NUMER_RANDOM_ELEMENTS; i++) {
 			newPoints[i] = getRandomPosition();
-			newPoints[i].setFitness(checkCountForFitness(newPoints[i].getX(), newPoints[i].getY()));
+			newPoints[i].setFitness(checkCountForFitness(ConnectPoint.PLAYER_TWO_VALUE,newPoints[i].getX(), newPoints[i].getY()));
 		}
+
 		shufflePoints(newPoints);
 		Random random = new Random();
 		final int randonFitness =  random.nextInt(FITNESS_MEDIA);
@@ -187,6 +189,7 @@ public class ConnectBoard {
 			}
 		}
 		//if the summatory dint reach the fitness assign the last one arbitrary
+//		Log.e(TAG,"no llego " + randonFitness);
 		return newPoints[NUMER_RANDOM_ELEMENTS -1];
 
 	}
@@ -195,7 +198,7 @@ public class ConnectBoard {
 		newPoints[0] = healthiest;
 		for (int i = 1; i < NUMER_RANDOM_ELEMENTS; i++) {
 			newPoints[i] = getRandomPosition();
-			newPoints[i].setFitness(checkCountForFitness(newPoints[i].getX(), newPoints[i].getY()));
+			newPoints[i].setFitness(checkCountForFitness(ConnectPoint.PLAYER_TWO_VALUE,newPoints[i].getX(), newPoints[i].getY()));
 		}
 		shufflePoints(newPoints);
 		Random random = new Random();
@@ -209,7 +212,9 @@ public class ConnectBoard {
 			}
 		}
 		//if the summatory dint reach the fitness assign the last one arbitrary
-		return newPoints[NUMER_RANDOM_ELEMENTS -1];
+//		Log.e(TAG,"no llego " + randonFitness + " "+summatoryFitness);
+
+		return healthiest;
 
 	}
 
@@ -222,7 +227,7 @@ public class ConnectBoard {
 		Random random =  new Random();
 		do {
 			randomPoint = new Point(random.nextInt(ROWS),random.nextInt(COLUMNS));
-			randomPoint.setFitness(checkCountForFitness(randomPoint.getX(),randomPoint.getY()));
+			randomPoint.setFitness(checkCountForFitness(ConnectPoint.PLAYER_TWO_VALUE,randomPoint.getX(),randomPoint.getY()));
 		}while(points[randomPoint.getX()][randomPoint.getY()].isSelected() || randomPoint.getFitness() == 0 );
 		return randomPoint;
 	}

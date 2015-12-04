@@ -10,4 +10,13 @@
           android:title="@string/restart_score"
           android:orderInCategory="100"
           app:showAsAction="never"/>
+    <item android:id="@+id/cpu_mode"
+          android:title="@string/cpu_mode"
+          android:orderInCategory="100"
+          app:showAsAction="never"/>
+    <item android:id="@+id/two_players_mode"
+          android:title="@string/two_players_mode"
+          android:orderInCategory="100"
+          app:showAsAction="never"/>
+
 </menu>
