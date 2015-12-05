@@ -21,6 +21,10 @@ import com.thebitcorps.connect5.models.ConnectPoint;
 import com.thebitcorps.connect5.models.Point;
 
 
+/**
+ * SharePrefenreces: @CPU_BOOLEAN this key is the one for the cpu mode if set to false two player mode will be acive
+ *					CPU_BOOLEAN_MAX this key is the one for the cpumax mode also you need to set false the CPU_BOOLEAN to prevent the cpu make two moves
+ */
 public class MainActivity extends AppCompatActivity {
 	private static final String TAG = "shit";
 	private static final int[] layout_ids = {R.id.first_row,R.id.second_row,R.id.third_row,R.id.fourth_row,R.id.fifth_row,R.id.sixth_row,R.id.seventh_row,R.id.eighth_row};
@@ -33,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
 	private static final String FIRST_PLAYER_SCORE = "firstPlayer";
 	private static final String SECOND_PLAYER_SCORE = "secondPlayer";
 	private static final String CPU_BOOLEAN = "CPU";
+	private static final String CPU_BOOLEAN_MAX = "CPUMAX";
 	////COLORS
 	private  final int FIRST_PLAYER_COLOR = Color.parseColor("#ffffff");
 	private final int SECOND_PLAYER_COLOR = Color.parseColor("#ffffff");
@@ -40,15 +45,22 @@ public class MainActivity extends AppCompatActivity {
 	private ConnectBoard board;
 
 	private Boolean cpuPlaying;
+	private Boolean cpuMax;
 
+	/*
+	*	Will change the player turn and the color of the textviews for the current player
+	*	if a cpu mode is active will execute the proper generato for the cpu move
+	* */
 	private void changePlayer(){
 
 		firstPlayerTextView.setTextColor(is_first_player ? FIRST_PLAYER_COLOR : INACTIVE_PLAYER_COLOR);
 		secondPlayerTextView.setTextColor(is_first_player ? INACTIVE_PLAYER_COLOR : SECOND_PLAYER_COLOR);
 		is_first_player = is_first_player ? false  : true;
 		if((!is_first_player) && cpuPlaying ) {
-//			Point point = board.generateMinMaxPLay(ConnectPoint.PLAYER_TWO_VALUE);
 			makeCpuMove();
+		}
+		else if((!is_first_player) && cpuMax ) {
+			makeCpuMaxMove();
 		}
 	}
 
@@ -60,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
 		//set the type of player
 		SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
 		cpuPlaying = settings.getBoolean(CPU_BOOLEAN,false);
+		cpuMax = settings.getBoolean(CPU_BOOLEAN_MAX,false);
 		is_first_player = true;
 		//set elements of activity
 		firstPlayerTextView = (TextView) findViewById(R.id.first_player_text_view);
@@ -133,6 +146,7 @@ public class MainActivity extends AppCompatActivity {
 			restartGame();
 			return true;
 		}
+		//clear all the share prefecences
 		else if (id == R.id.restore_score){
 			SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
 			SharedPreferences.Editor editor = settings.edit();
@@ -140,6 +154,7 @@ public class MainActivity extends AppCompatActivity {
 			editor.commit();
 			return true;
 		}
+		//activate cpu mode and if current player two will make a cpu move
 		else if (id == R.id.cpu_mode){
 			//when they change is trigger if is in second player turn make cpu move
 			if(!is_first_player){
@@ -152,10 +167,23 @@ public class MainActivity extends AppCompatActivity {
 			setCpuPlayer(false);
 			return true;
 		}
+		//activate cpu max mode and if current player two will make a cpu move
+		else if (id == R.id.cpu_mode_max) {
+			if(!is_first_player){
+				makeCpuMaxMove();
+			}
+			setCpuMaxPlayer(true);
+			return true;
+		}
 
 		return super.onOptionsItemSelected(item);
 	}
 
+	/**
+	*	Show a alert that display the current user as the winner of the match or if @param isWinner is false will tie message
+	 *	also will display the record of wins of every player
+	 *@param isWinner if true will show current user as winner if false will show tie message
+	* */
 	private void showFinishedGameAlert(boolean isWinner){
 		SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
 		String title;
@@ -178,20 +206,54 @@ public class MainActivity extends AppCompatActivity {
 		builder.show();
 	}
 
+	/**
+	 * Get a point generate wit a genetic max algorithm al trigger that point button @onClick
+	 */
+	private void makeCpuMaxMove() {
+		Point point = board.generatePointGeneticWithMax();
+		board.getButton(point.getX(),point.getY()).performClick();
+	}
+
+	/**
+	 * Get a point generate wit a genetic max algorithm al trigger that point button @onClick
+	 */
 	private void makeCpuMove() {
 		Point point = board.generatePointGenetic();
 		board.getButton(point.getX(),point.getY()).performClick();
 	}
 
+	/**
+	 * will restart activity so the last game is discarded
+	 */
 	private void restartGame() {
 		finish();
 		startActivity(new Intent(getApplicationContext(),MainActivity.class));
 	}
+
+	/**
+	 * will change sharePreferences, so the cpuMaxmode is active and will make the cpuMode inactive
+	 * @param isCpuPlaying is true will set cpuMaxMode active if no will active the twoPlayers mode
+	 */
+	private void setCpuMaxPlayer(boolean isCpuPlaying){
+		secondPlayerTextView.setText(isCpuPlaying ? CPU_PLAYER_NAME : SECOND_PLAYER_NAME);
+		SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = settings.edit();
+		editor.putBoolean(CPU_BOOLEAN,false);
+		editor.putBoolean(CPU_BOOLEAN_MAX,isCpuPlaying);
+		editor.commit();
+		cpuPlaying = isCpuPlaying;
+	}
+
+	/**
+	 * will change sharePreferences, so the cpumode is active and will make the cpuMaxMode inactive
+	 *  @param isCpuPlaying is true will set cpuMode active if no will active the twoPlayers mode
+	 */
 	private void setCpuPlayer(boolean isCpuPlaying){
 		secondPlayerTextView.setText(isCpuPlaying ? CPU_PLAYER_NAME : SECOND_PLAYER_NAME);
 		SharedPreferences settings = getPreferences(Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = settings.edit();
 		editor.putBoolean(CPU_BOOLEAN,isCpuPlaying);
+		editor.putBoolean(CPU_BOOLEAN_MAX,false);
 		editor.commit();
 		cpuPlaying = isCpuPlaying;
 	}
